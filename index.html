@@ -1,0 +1,107 @@
+<!DOCTYPE>
+<html>
+<head>
+	<title>Потоков отправлятор</title>
+	<script src=jquery.min.js></script>
+	<meta charset='utf-8'>
+	<style>
+		*{margin:0;padding:0;}
+		#main table{
+			font-size:20px;
+		}
+		#main table tr td{
+			padding:5px;
+		}
+		body{
+			background:#6c9b69;
+			color:#232323;
+		}
+		#main tr td{
+			height:50px;
+			border:solid lightgrey 0.5px;
+		}
+		#main table{
+			border:solid lightgrey 0.5px;
+			margin-top:100px;
+		}
+		input[type=text]{
+			height:40px;
+			color:#555555;
+			font-size:20px;
+			padding:0px 10px;
+			width:200px;
+		}
+		input[type=checkbox]{
+			height:40px;
+			width:40px;
+		}		
+		input[type=submit]{
+			height:40px;
+			width:200px;
+			cursor:pointer;
+		}
+		textarea{
+			padding:10px 10px;
+			color:#555555;
+			width:100%;
+			font-size:20px;
+		}
+	</style>
+</head>
+<body>
+	<div id=main>
+		<center>
+		<table width=70% cellspacing=0>
+			<tr><td colspan=4 align=center><h2><b>Generator</b></h2></td></tr>
+			<tr><td>Buffer size</td><td><input id=bufsize type=text value=100></td><td>Port</td><td><input id=port value='1300' type=text></td></tr>
+			<tr><td>Delay, ms</td><td><input id=delay type=text value=20></td><td>IP</td><td><input id=ip type=text value='127.0.0.1'></td></tr>
+			<tr><td>Amount</td><td><input id=amount type=text value=1000></td><td>Limited</td><td><input id=limited checked type=checkbox></td></tr>
+			<tr><td colspan=4>Calculated time: <span id=ctime>Unlimited</span></td></tr>
+			<tr align=center><td colspan=2><input type=submit value=Start id=start></td><td colspan=2><input type=submit value=Stop id=stop></td></tr>
+		</table>
+		</center>
+	</div>
+</body>
+</html>
+<script>
+
+	function calc_time(){
+		if($("#limited").prop("checked"))
+			$("#ctime").html(Math.floor($("#delay").val()*$("#amount").val()/10)/100+" sec., "+(Math.floor(100000/$("#delay").val())/100)+" per second")
+		else
+			$("#ctime").html("Unlimited")
+	}
+	calc_time();
+	
+	
+	$("#delay , #amount").bind("input", calc_time)
+	$("#limited").on("click	",calc_time)
+	
+	$("#start").on("click",function(){
+		$.post(
+			"/flow",
+		{
+			type: "flowstart",
+			buffersize: $("#bufsize").val(),
+			port: $("#port").val(),
+			delay: $("#delay").val(),
+			ip: $("#ip").val(),
+			amount: $("#amount").val(),
+			limited: $("#limited").prop("checked")
+		},
+		function(data){
+		}
+	)
+	})
+	
+	$("#stop").on("click",function(){
+		$.post(
+			"/stopflow",
+		{
+			type: "flowstop"
+		},
+		function(data){
+		}
+	)
+	})
+</script>
